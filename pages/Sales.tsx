@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ShoppingCart, Plus, Search, Trash2, CheckCircle, FileText, AlertCircle, Package, ShieldAlert } from 'lucide-react';
+import { ShoppingCart, Plus, Search, Trash2, CheckCircle, FileText, Package, ShieldAlert } from 'lucide-react';
 import { Part, Sale, SaleItem, InventoryLog } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import InvoiceModal from '../components/InvoiceModal.tsx';
@@ -59,17 +59,14 @@ const Sales: React.FC<SalesProps> = ({ sales, setSales, parts, updateStock }) =>
     if (!validation.success) {
       const errors = validation.error.issues.map(e => e.message);
       setValidationErrors(errors);
-      logger.warn("Sales validation failed", { errors });
       return;
     }
 
     const subtotal = cart.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-    const total = subtotal; // VAT 10% REMOVED
-    const saleId = `S${Date.now()}`;
+    const total = subtotal;
+    const saleId = `S${sales.length + 1}`;
 
     try {
-      logger.info("Commencing sales transaction", { saleId });
-      
       cart.forEach(item => {
         updateStock(item.partId, -item.quantity, 'SALE', saleId);
       });
@@ -94,22 +91,21 @@ const Sales: React.FC<SalesProps> = ({ sales, setSales, parts, updateStock }) =>
       setActiveInvoice(newSale);
       logger.success("Sales transaction finalized", { saleId });
     } catch (err: any) {
-      logger.error("Sales Transaction Aborted", { error: err.message });
-      alert(`System Error: The transaction was aborted to prevent stock mismatch. ${err.message}`);
+      alert(`Transaction failed: ${err.message}`);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-outfit font-bold text-honda-dark tracking-tight">Sales Hub</h1>
-          <p className="text-gray-500">Atomic transaction processing and stock integrity</p>
+          <h1 className="text-4xl font-outfit font-black text-honda-dark tracking-tighter">Sales Hub</h1>
+          <p className="text-gray-500 font-medium">Atomic transaction processing and stock integrity</p>
         </div>
         {!isNewSale && (
           <button 
             onClick={() => setIsNewSale(true)}
-            className="flex items-center gap-2 bg-honda-red text-white px-6 py-3 rounded-2xl font-bold hover:bg-opacity-90 transition-all shadow-lg shadow-honda-red/20"
+            className="flex items-center gap-2 bg-honda-red text-white px-8 py-4 rounded-3xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-honda-red/20"
           >
             <Plus size={20} /> New Counter Sale
           </button>
@@ -119,33 +115,34 @@ const Sales: React.FC<SalesProps> = ({ sales, setSales, parts, updateStock }) =>
       <AnimatePresence mode="wait">
         {isNewSale ? (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Catalog Section */}
             <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-premium">
+              <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-premium">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="font-outfit font-bold text-xl text-gray-800">Part Catalog</h3>
                   <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                     <input 
                       type="text" 
                       placeholder="Search parts..."
-                      className="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl text-xs outline-none"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-xs outline-none"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                   {filteredParts.map(part => (
                     <button 
                       key={part.id}
                       onClick={() => addToCart(part)}
                       disabled={part.stock <= 0}
-                      className="p-5 border border-gray-100 rounded-2xl text-left hover:border-honda-red/20 hover:bg-gray-50/50 transition-all flex justify-between items-center group disabled:opacity-40"
+                      className="p-6 border border-gray-100 rounded-[28px] text-left hover:border-honda-red/30 hover:bg-honda-red/[0.02] transition-all flex justify-between items-center group disabled:opacity-40"
                     >
                       <div>
-                        <p className="font-bold text-gray-800">{part.name}</p>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">
+                        <p className="font-bold text-gray-800 text-sm">{part.name}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-widest">
                           Stock: {part.stock} • Rs. {part.price.toLocaleString()}
                         </p>
                       </div>
@@ -156,119 +153,116 @@ const Sales: React.FC<SalesProps> = ({ sales, setSales, parts, updateStock }) =>
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[32px] shadow-premium border border-gray-100 h-fit sticky top-24">
-              <h3 className="font-outfit font-bold text-xl text-gray-800 mb-8 flex items-center gap-3">
-                <ShoppingCart size={24} className="text-honda-red" />
-                Checkout Terminal
+            {/* Checkout Terminal */}
+            <div className="bg-honda-dark p-10 rounded-[48px] shadow-2xl h-fit sticky top-24">
+              <h3 className="font-outfit font-bold text-2xl text-white mb-8 flex items-center gap-3">
+                <ShoppingCart size={28} className="text-honda-red" />
+                Terminal
               </h3>
               
               <div className="space-y-4 mb-8">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Client Details</label>
-                  <input 
-                    placeholder="Customer Name"
-                    className="w-full px-4 py-3 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-honda-red/10"
-                    value={customer.name}
-                    onChange={e => setCustomer({...customer, name: e.target.value})}
-                  />
-                </div>
                 <input 
-                  placeholder="Bike Model (e.g. CG125)"
-                  className="w-full px-4 py-3 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-honda-red/10"
+                  placeholder="Customer Name"
+                  className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-honda-red/50 transition-colors"
+                  value={customer.name}
+                  onChange={e => setCustomer({...customer, name: e.target.value})}
+                />
+                <input 
+                  placeholder="Bike Model (e.g. CB150F)"
+                  className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-honda-red/50 transition-colors"
                   value={customer.bike}
                   onChange={e => setCustomer({...customer, bike: e.target.value})}
                 />
               </div>
 
               {validationErrors.length > 0 && (
-                <div className="mb-6 p-4 bg-red-50 rounded-2xl border border-red-100 space-y-1">
+                <div className="mb-6 p-5 bg-honda-red/10 rounded-2xl border border-honda-red/20">
                   {validationErrors.map((err, i) => (
-                    <div key={i} className="flex items-center gap-2 text-[10px] font-bold text-honda-red uppercase">
+                    <div key={i} className="flex items-center gap-2 text-[10px] font-bold text-honda-red uppercase mb-1 last:mb-0">
                       <ShieldAlert size={12} /> {err}
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="space-y-4 mb-10 min-h-[100px]">
+              <div className="space-y-4 mb-10 min-h-[120px] max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {cart.map(item => (
-                  <div key={item.partId} className="flex justify-between items-center group">
+                  <div key={item.partId} className="flex justify-between items-center group bg-white/5 p-4 rounded-2xl border border-white/5">
                     <div>
-                      <p className="text-sm font-bold text-gray-800">x{item.quantity} {item.partName}</p>
-                      <p className="text-[10px] font-bold text-gray-400">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                      <p className="text-sm font-bold text-white">x{item.quantity} {item.partName}</p>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase">Rs. {(item.price * item.quantity).toLocaleString()}</p>
                     </div>
-                    <button onClick={() => removeFromCart(item.partId)} className="p-2 text-gray-400 hover:text-honda-red opacity-0 group-hover:opacity-100 transition-all">
+                    <button onClick={() => removeFromCart(item.partId)} className="p-2 text-gray-500 hover:text-honda-red transition-all">
                       <Trash2 size={16}/>
                     </button>
                   </div>
                 ))}
                 {cart.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-6 text-gray-300 gap-2">
-                    <Package size={32} strokeWidth={1}/>
-                    <p className="text-xs font-medium">Cart is empty</p>
+                  <div className="flex flex-col items-center justify-center py-10 text-white/20 gap-3">
+                    <Package size={40} strokeWidth={1}/>
+                    <p className="text-xs font-bold uppercase tracking-widest">Cart is empty</p>
                   </div>
                 )}
               </div>
 
-              <div className="border-t border-gray-100 pt-6 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400 font-medium">Subtotal</span>
-                  <span className="font-bold text-gray-800">Rs. {cart.reduce((a, b) => a + (b.price * b.quantity), 0).toLocaleString()}</span>
+              <div className="border-t border-white/10 pt-8 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Gross total</span>
+                  <span className="text-3xl font-outfit font-black text-white">Rs. {cart.reduce((a, b) => a + (b.price * b.quantity), 0).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-2xl font-outfit font-bold border-t border-gray-100 pt-4 text-honda-dark">
-                  <span>Total</span>
-                  <span>Rs. {cart.reduce((a, b) => a + (b.price * b.quantity), 0).toLocaleString()}</span>
+                <div className="flex flex-col gap-3 pt-4">
+                  <button 
+                    onClick={completeSale}
+                    disabled={cart.length === 0}
+                    className="w-full py-5 bg-honda-red text-white rounded-2xl font-bold shadow-xl shadow-honda-red/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:scale-100"
+                  >
+                    Authorize & Finish
+                  </button>
+                  <button onClick={() => setIsNewSale(false)} className="w-full py-4 text-xs font-bold text-gray-500 hover:text-white transition-colors">Abort Transaction</button>
                 </div>
-              </div>
-
-              <div className="mt-10 flex flex-col gap-3">
-                <button 
-                  onClick={completeSale}
-                  disabled={cart.length === 0}
-                  className="w-full py-5 bg-honda-red text-white rounded-2xl font-bold shadow-lg shadow-honda-red/20 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100"
-                >
-                  <CheckCircle size={20}/> Process Transaction
-                </button>
-                <button onClick={() => setIsNewSale(false)} className="w-full py-4 text-sm font-bold text-gray-400 hover:bg-gray-50 rounded-2xl transition-all">Discard Session</button>
               </div>
             </div>
           </motion.div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-[32px] shadow-premium border border-gray-100 overflow-hidden">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-[48px] shadow-premium border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-gray-50/50 text-[10px] uppercase font-bold text-gray-400 tracking-widest">
-                    <th className="px-8 py-5">TXN ID</th>
-                    <th className="px-8 py-5">Client</th>
-                    <th className="px-8 py-5">Unit Model</th>
-                    <th className="px-8 py-5">Gross Amount</th>
-                    <th className="px-8 py-5">Status</th>
-                    <th className="px-8 py-5 text-right">Documents</th>
+                  <tr className="bg-gray-50/50 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em]">
+                    <th className="px-10 py-8">TXN ID</th>
+                    <th className="px-10 py-8">Client</th>
+                    <th className="px-10 py-8">Unit Model</th>
+                    <th className="px-10 py-8 text-right">Documents</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {sales.map(sale => (
-                    <tr key={sale.id} className="hover:bg-gray-50/50 transition-colors group">
-                      <td className="px-8 py-5 text-xs font-mono font-bold text-gray-400">{sale.id}</td>
-                      <td className="px-8 py-5 font-bold text-honda-dark">{sale.customerName}</td>
-                      <td className="px-8 py-5 text-sm text-gray-500">{sale.bikeModel}</td>
-                      <td className="px-8 py-5 font-bold text-honda-dark">Rs. {sale.total.toLocaleString()}</td>
-                      <td className="px-8 py-5">
-                        <span className="text-[10px] font-bold px-3 py-1 rounded-lg bg-green-50 text-green-600 border border-green-100 uppercase">
-                          {sale.status}
-                        </span>
+                    <tr key={sale.id} className="hover:bg-gray-50/50 transition-all group">
+                      <td className="px-10 py-8 text-xs font-mono font-black text-gray-400">{sale.id}</td>
+                      <td className="px-10 py-8 font-black text-honda-dark uppercase tracking-tight">{sale.customerName}</td>
+                      <td className="px-10 py-8">
+                        <span className="text-xs font-bold text-gray-500 uppercase bg-gray-100 px-3 py-1.5 rounded-lg">{sale.bikeModel}</span>
                       </td>
-                      <td className="px-8 py-5 text-right">
+                      <td className="px-10 py-8 text-right">
                         <button 
                           onClick={() => setActiveInvoice(sale)}
-                          className="p-3 text-honda-blue hover:bg-honda-blue/5 rounded-xl transition-all"
+                          className="p-4 text-honda-red hover:bg-honda-red/5 rounded-2xl transition-all border border-transparent hover:border-honda-red/10"
                         >
-                          <FileText size={20}/>
+                          <FileText size={22}/>
                         </button>
                       </td>
                     </tr>
                   ))}
+                  {sales.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-10 py-32 text-center">
+                        <div className="flex flex-col items-center gap-4 text-gray-300">
+                          <ShoppingCart size={64} strokeWidth={1} />
+                          <p className="font-bold uppercase tracking-widest text-xs">No transactions recorded in this shift</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
