@@ -3,12 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Atlas Honda - Enterprise Dealer OS</title>
+    <title>Master Honda - Enterprise Dealer OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
     <script>
+      // Polyfill for process.env to prevent ReferenceErrors in browser
+      window.process = { env: { API_KEY: '' } };
+      
       tailwind.config = {
         theme: {
           extend: {
@@ -42,7 +45,7 @@
       ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
       ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-      /* Print Specific Styles for Thermal Printing */
+      /* Print Specific Styles for Thermal Printing (80mm) */
       @media print {
         @page {
           margin: 0;
@@ -54,7 +57,7 @@
           visibility: hidden !important;
         }
 
-        /* Show the invoice and its children */
+        /* Show only the invoice and its children */
         .thermal-invoice, .thermal-invoice * {
           visibility: visible !important;
         }
@@ -64,7 +67,7 @@
           position: absolute !important;
           left: 0 !important;
           top: 0 !important;
-          width: 72mm !important; /* Standard printable area for 80mm roll */
+          width: 72mm !important; /* Printable area for 80mm roll */
           margin: 0 !important;
           padding: 4mm 0 !important;
           background: white !important;
@@ -83,7 +86,7 @@
           print-color-adjust: exact;
         }
 
-        /* Enforce high contrast black/white */
+        /* High contrast for thermal heads */
         * {
           color: #000000 !important;
           border-color: #000000 !important;
@@ -92,45 +95,33 @@
           text-shadow: none !important;
         }
 
-        .flex {
-          display: flex !important;
-          flex-direction: row !important;
-        }
-
-        .justify-between {
-          justify-content: space-between !important;
-        }
-
-        .border-dashed {
-          border-style: dashed !important;
-          border-width: 1px !important;
-        }
-        
-        .border-b {
-          border-bottom-width: 1px !important;
-        }
+        .flex { display: flex !important; flex-direction: row !important; }
+        .justify-between { justify-content: space-between !important; }
+        .border-dashed { border-style: dashed !important; border-width: 1px !important; }
+        .border-b { border-bottom-width: 1px !important; }
       }
     </style>
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom": "https://esm.sh/react-dom@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "recharts": "https://esm.sh/recharts@^3.7.0",
     "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.0.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.474.0",
     "zod": "https://esm.sh/zod@^3.23.8",
     "clsx": "https://esm.sh/clsx@^2.1.1",
     "tailwind-merge": "https://esm.sh/tailwind-merge@^2.3.0",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "@prisma/client": "https://esm.sh/@prisma/client@^7.4.0"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
   </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>
