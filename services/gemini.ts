@@ -4,34 +4,34 @@ import { Part } from '../types';
 import { logger } from './logger.ts';
 
 let lastRequestTime = 0;
-const RATE_LIMIT_MS = 3000; // 3 second cooldown
+const RATE_LIMIT_MS = 3000;
 
 export const askInventoryAssistant = async (query: string, inventory: Part[]) => {
   const now = Date.now();
   if (now - lastRequestTime < RATE_LIMIT_MS) {
-    return "Rate limit active. Please wait a moment before sending another query to ensure system stability.";
+    return "Please wait a moment before sending another query.";
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Safe check for API key
+  const apiKey = (window as any).process?.env?.API_KEY || '';
+  if (!apiKey) {
+    logger.warn("AI Assistant: Missing API_KEY configuration");
+    return "AI system is offline (API Key not configured). Please contact support.";
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   const inventoryContext = JSON.stringify(inventory.map(i => ({
     name: i.name,
     stock: i.stock,
     minStock: i.minStock,
-    price: i.price,
-    partNumber: i.partNumber
+    price: i.price
   })));
 
-  const systemPrompt = `You are the "Atlas Honda AI Assistant", an expert in motorcycle dealership operations. 
-  You have access to the current inventory: ${inventoryContext}. 
-  Provide professional, concise advice on inventory management, stock alerts, or customer compatibility. 
-  If stock is below minStock, flag it as critical. Keep responses under 100 words. 
-  Format using clear bullet points where appropriate. Use a premium, corporate tone reflecting Atlas Honda's standards in Pakistan.`;
+  const systemPrompt = `You are the Master Honda AI Assistant. Context: ${inventoryContext}. Keep responses professional, brief (under 100 words), and focused on dealership operations.`;
 
   try {
     lastRequestTime = now;
-    logger.info("Initiating AI synthesis request", { query });
-
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: query,
@@ -41,14 +41,9 @@ export const askInventoryAssistant = async (query: string, inventory: Part[]) =>
       },
     });
 
-    if (!response || !response.text) {
-      throw new Error("Empty response received from GenAI node");
-    }
-
-    logger.success("AI synthesis complete");
-    return response.text;
+    return response.text || "I'm sorry, I couldn't generate a response.";
   } catch (error: any) {
-    logger.error("Gemini AI Node Failure", { error: error.message });
-    return `Operational Alert: The AI service is currently unavailable (${error.message || 'Network Timeout'}). Please proceed with manual inventory reconciliation.`;
+    logger.error("AI Node Failure", { error: error.message });
+    return `Error connecting to AI service.`;
   }
 };
