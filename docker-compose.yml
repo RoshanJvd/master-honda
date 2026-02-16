@@ -1,0 +1,30 @@
+
+version: '3.8'
+
+services:
+  master-honda-app:
+    build: .
+    ports:
+      - "3000:80"
+    environment:
+      - API_KEY=${API_KEY}
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: honda_secure_pass
+      POSTGRES_DB: master_honda_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  cache:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

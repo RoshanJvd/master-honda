@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atlas Honda - Enterprise Dealer OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              honda: {
+                red: '#B02E15',
+                blue: '#171091',
+                white: '#FFFFFF',
+                dark: '#0F0F0F',
+                gray: '#F3F4F6',
+                accent: '#E5E7EB'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              outfit: ['Outfit', 'sans-serif']
+            },
+            boxShadow: {
+              'premium': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+              'honda': '0 0 20px rgba(176, 46, 21, 0.1)'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #1E293B; }
+      .font-outfit { font-family: 'Outfit', sans-serif; }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+      /* Print Specific Styles for Thermal Printing */
+      @media print {
+        @page {
+          margin: 0;
+          size: 78mm auto; /* Standard Wide Thermal Roll Width */
+        }
+        
+        header, aside, .no-print, button, .print-hidden, nav, footer, .backdrop-blur-sm {
+          display: none !important;
+        }
+
+        body {
+          background-color: white !important;
+          color: black !important;
+          width: 78mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          font-size: 10pt !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        main {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 78mm !important;
+        }
+
+        .lg\:ml-64 {
+          margin-left: 0 !important;
+        }
+
+        /* Enforce Absolute Black Only for high thermal contrast */
+        * {
+          color: #000000 !important;
+          border-color: #000000 !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+          filter: none !important;
+        }
+
+        img {
+          filter: grayscale(1) contrast(3) !important;
+          max-width: 40mm !important;
+          margin-bottom: 2mm !important;
+          display: block !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+
+        .thermal-invoice {
+          width: 74mm !important;
+          margin: 0 auto !important;
+          padding: 2mm !important;
+          display: block !important;
+        }
+
+        /* Spacing for 78mm */
+        .mb-10, .mb-6 { margin-bottom: 4mm !important; }
+        .mb-8, .mb-4, .mb-3 { margin-bottom: 3mm !important; }
+        .mt-12, .mt-8, .mt-6 { margin-top: 5mm !important; }
+        .py-4, .py-2, .py-1\.5 { padding-top: 1mm !important; padding-bottom: 1mm !important; }
+        .p-10, .p-8, .p-12, .p-4 { padding: 2mm !important; }
+        .gap-4, .gap-2, .gap-1, .gap-0\.5 { gap: 1mm !important; }
+        
+        .border-dashed {
+          border-style: dashed !important;
+          border-width: 1pt !important;
+        }
+      }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom": "https://esm.sh/react-dom@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+    "zod": "https://esm.sh/zod@^3.23.8",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^2.3.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "@prisma/client": "https://esm.sh/@prisma/client@^7.4.0"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
