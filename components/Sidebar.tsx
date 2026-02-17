@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NAV_ITEMS } from '../constants.tsx';
 import { View, UserRole } from '../types.ts';
@@ -15,6 +14,11 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, userRole, isMobileOpen, onClose }) => {
+  const handleNavClick = (view: View) => {
+    onViewChange(view);
+    if (onClose) onClose();
+  };
+
   const content = (
     <div className="w-64 h-full bg-white border-r border-gray-100 flex flex-col relative">
       {onClose && (
@@ -41,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, userRole, 
           return (
             <button
               key={item.id}
-              onClick={() => onViewChange(item.id as View)}
+              onClick={() => handleNavClick(item.id as View)}
               className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 font-bold group ${
                 isActive 
                   ? 'bg-honda-red text-white shadow-xl shadow-honda-red/20' 
