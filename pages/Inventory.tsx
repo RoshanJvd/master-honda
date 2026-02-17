@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Filter, Edit3, Trash2, History, TrendingDown, Package, FileText, ArrowUp, ArrowDown, AlertCircle, RefreshCcw, X, ShieldAlert, FileDown, Loader2 } from 'lucide-react';
 import { Part, InventoryLog } from '../types.ts';
@@ -103,7 +102,11 @@ const Inventory: React.FC<InventoryProps> = ({ parts, setParts, logs, updateStoc
       setValidationErrors(result.error.issues.map(i => i.message));
       return;
     }
-    const newEntry: Part = { ...newItem, id: `P-${Date.now()}`, lastUpdated: new Date().toISOString().split('T')[0] };
+    const newEntry: Part = { 
+      ...newItem, 
+      id: `P-${Date.now()}`, 
+      lastUpdated: new Date().toISOString().split('T')[0] 
+    };
     setParts(prev => [newEntry, ...prev]);
     setIsAddingItem(false);
     setNewItem({ name: '', partNumber: '', category: 'Engine', stock: 0, minStock: 5, price: 0 });
@@ -242,7 +245,66 @@ const Inventory: React.FC<InventoryProps> = ({ parts, setParts, logs, updateStoc
         )}
       </AnimatePresence>
 
-      {/* Modals Omitted for Brevity - preserved logic */}
+      <AnimatePresence>
+        {isAddingItem && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAddingItem(false)} className="absolute inset-0 bg-honda-dark/80 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-[40px] p-10 max-w-lg w-full shadow-2xl relative">
+              <h3 className="text-2xl font-outfit font-bold text-honda-dark mb-6">Register New Spare Part</h3>
+              <form onSubmit={handleCreateItem} className="space-y-4">
+                <input required placeholder="Part Name" className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+                <input required placeholder="Honda Part Number" className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none" value={newItem.partNumber} onChange={e => setNewItem({...newItem, partNumber: e.target.value})} />
+                <div className="grid grid-cols-2 gap-4">
+                  <select className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none font-bold" value={newItem.category} onChange={e => setNewItem({...newItem, category: e.target.value as any})}>
+                    <option>Engine</option>
+                    <option>Braking</option>
+                    <option>Electrical</option>
+                    <option>Chassis</option>
+                    <option>Accessories</option>
+                  </select>
+                  <input required type="number" placeholder="Unit Price (Rs.)" className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none" value={newItem.price || ''} onChange={e => setNewItem({...newItem, price: Number(e.target.value)})} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <input required type="number" placeholder="Initial Stock" className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none" value={newItem.stock || ''} onChange={e => setNewItem({...newItem, stock: Number(e.target.value)})} />
+                  <input required type="number" placeholder="Min Alert Stock" className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none" value={newItem.minStock || ''} onChange={e => setNewItem({...newItem, minStock: Number(e.target.value)})} />
+                </div>
+                {validationErrors.length > 0 && (
+                  <div className="p-4 bg-red-50 text-honda-red rounded-2xl text-xs font-bold">
+                    {validationErrors.map((err, i) => <p key={i}>• {err}</p>)}
+                  </div>
+                )}
+                <div className="flex gap-4 pt-4">
+                  <button type="button" onClick={() => setIsAddingItem(false)} className="flex-1 font-bold text-gray-400">Cancel</button>
+                  <button type="submit" className="flex-[2] py-4 bg-honda-red text-white rounded-2xl font-bold shadow-lg shadow-honda-red/20">Finalize Registry</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedPart && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedPart(null)} className="absolute inset-0 bg-honda-dark/80 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-[40px] p-10 max-w-sm w-full shadow-2xl relative">
+              <h3 className="text-xl font-outfit font-bold text-honda-dark mb-2">Adjust Stock</h3>
+              <p className="text-xs text-gray-400 mb-6 font-bold uppercase tracking-widest">{selectedPart.name}</p>
+              <form onSubmit={handleAdjustment} className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <button type="button" onClick={() => setAdjustmentAmount(prev => prev - 1)} className="w-12 h-12 rounded-xl border border-gray-100 flex items-center justify-center font-bold text-xl hover:bg-gray-50">-</button>
+                  <input type="number" className="flex-1 text-center font-outfit font-bold text-2xl outline-none" value={adjustmentAmount} onChange={e => setAdjustmentAmount(Number(e.target.value))} />
+                  <button type="button" onClick={() => setAdjustmentAmount(prev => prev + 1)} className="w-12 h-12 rounded-xl border border-gray-100 flex items-center justify-center font-bold text-xl hover:bg-gray-50">+</button>
+                </div>
+                <div className="flex gap-4">
+                  <button type="button" onClick={() => setSelectedPart(null)} className="flex-1 font-bold text-gray-400">Cancel</button>
+                  <button type="submit" className="flex-[2] py-4 bg-honda-dark text-white rounded-2xl font-bold">Update Inventory</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
