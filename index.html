@@ -52,22 +52,19 @@
           size: 80mm auto;
         }
         
-        /* Hide everything by default */
         body * {
           visibility: hidden !important;
         }
 
-        /* Show only the invoice and its children */
         .thermal-invoice, .thermal-invoice * {
           visibility: visible !important;
         }
 
-        /* Position the invoice at the top left of the print area */
         .thermal-invoice {
           position: absolute !important;
           left: 0 !important;
           top: 0 !important;
-          width: 72mm !important; /* Printable area for 80mm roll */
+          width: 72mm !important; 
           margin: 0 !important;
           padding: 4mm 0 !important;
           background: white !important;
@@ -86,7 +83,6 @@
           print-color-adjust: exact;
         }
 
-        /* High contrast for thermal heads */
         * {
           color: #000000 !important;
           border-color: #000000 !important;
@@ -107,13 +103,14 @@
     "react": "https://esm.sh/react@19.0.0",
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "recharts": "https://esm.sh/recharts@^3.7.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.0.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.474.0",
-    "zod": "https://esm.sh/zod@^3.23.8",
-    "clsx": "https://esm.sh/clsx@^2.1.1",
-    "tailwind-merge": "https://esm.sh/tailwind-merge@^2.3.0",
+    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "recharts": "https://esm.sh/recharts@3.0.0-beta.10?deps=react@19.0.0",
+    "@google/genai": "https://esm.sh/@google/genai@1.41.0",
+    "framer-motion": "https://esm.sh/framer-motion@12.0.0?deps=react@19.0.0",
+    "lucide-react": "https://esm.sh/lucide-react@0.474.0?deps=react@19.0.0",
+    "zod": "https://esm.sh/zod@3.23.8",
+    "clsx": "https://esm.sh/clsx@2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@2.3.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/"
   }
